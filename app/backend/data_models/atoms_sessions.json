@@ -1,0 +1,41 @@
+{
+  "title": "atoms_sessions",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "sid": {
+      "type": "string",
+      "unique": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "format": "text"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "read_only": true
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "read_only": true
+    }
+  },
+  "required": [
+    "id",
+    "sid",
+    "title",
+    "stage",
+    "state"
+  ],
+  "create_only": false
+}

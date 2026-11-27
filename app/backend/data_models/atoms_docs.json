@@ -1,0 +1,40 @@
+{
+  "title": "atoms_docs",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "sid": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "format": "text"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "read_only": true
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "read_only": true
+    }
+  },
+  "required": [
+    "id",
+    "sid",
+    "kind",
+    "name",
+    "content"
+  ],
+  "create_only": false
+}

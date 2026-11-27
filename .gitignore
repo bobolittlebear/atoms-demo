@@ -1,0 +1,77 @@
+# ========== Python 后端 ==========
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
+# 测试与缓存
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache/
+
+# ========== 前端 ==========
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 构建产物
+dist/
+dist-ssr/
+build/
+*.local
+
+# 前端工具缓存
+.vite/
+.parcel-cache/
+.next/
+out/
+
+# ========== 环境变量与密钥 ==========
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ========== 数据库 ==========
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ========== IDE / 操作系统 ==========
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========== 日志 ==========
+*.log
+logs/
+
+# ========== 项目特定 ==========
+# 本地状态与生成物
+.atoms/
+.mgx/
+.funcsea-template.json
+attachments/*
+!attachments/.gitkeep
+
+# 导出/打包产物（exporter.ts 生成的 zip）
+*.zip
+exports/
