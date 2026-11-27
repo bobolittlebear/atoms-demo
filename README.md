@@ -2,7 +2,6 @@
 
 输入一句自然语言需求，工作台会依次经过「判断 → 规划 → 生成 → 检查 → 预览」五个阶段，生成一个单页面、零外部依赖的 CRUD Web 应用。生成的应用可以直接在页面内操作，刷新或重启后数据仍在。进入预览后，还能继续提出增量修改，或把应用导出为可离线运行的压缩包。
 
-需求与设计依据见 `attachments/` 下的规格与设计文档；视觉规范见 `DESIGN.md`。
 
 ---
 
@@ -88,13 +87,13 @@ PORT=8080 node run.js  # 指定端口
  ├─ 运行时 runtime：每个应用实例运行在独立的 Web Worker 中
  │    └─ store.read / store.write ──► 后端实体 atoms_docs（按会话隔离）
  ├─ 预览 iframe（srcdoc）──postMessage 代理 fetch──► 对应的 Worker 实例
- └─ web-sdk ──► FuncSea 后端（FastAPI）
+ └─ web-sdk ──► 后端（FastAPI）
                  ├─ /api/v1/agent/*：判断、规划、生成、修改判定、摘要（调用大模型）
                  └─ 实体表 atoms_sessions / atoms_docs
 ```
 
 - **前端**：Vite + React + TypeScript + Tailwind CSS + shadcn/ui，通过 `@metagptx/web-sdk` 访问后端；语法检查使用 `acorn`，摘要渲染使用 `markdown-to-jsx`。
-- **后端**：FuncSea 模板（FastAPI + SQLAlchemy），路由自动发现；调用大模型使用 `openai` SDK。
+- **后端**：FastAPI + SQLAlchemy，路由自动发现；调用大模型使用 `openai` SDK。
 - **数据**：
   - `atoms_sessions`：`sid`、`title`、`stage`，以及 `state`（JSON 字符串，保存计划、文件、检查项、消息、日志、修订备份等）。
   - `atoms_docs`：`sid`、`kind`、`name`、`content`；`kind=app-data` 存放生成应用的数据，`kind=check-data` 是检查专用数据，检查结束后清空。
@@ -175,8 +174,6 @@ PORT=8080 node run.js  # 指定端口
 | `DEEPSEEK_MODEL` | 否 | `deepseek-chat` | DeepSeek 模型名 |
 | `APP_AI_BASE_URL` / `APP_AI_KEY` | 平台注入 | — | Atoms AI 网关配置，仅在未配置 DeepSeek Key 时使用 |
 
-数据库连接等后端配置由 FuncSea 平台在启动时注入，无需手动设置。`.env` 系列文件已列入 `.gitignore`。
-
 ---
 
 ## 本地开发与构建
@@ -252,7 +249,6 @@ uv pip install -r requirements.default
 | `DEEPSEEK_MODEL` | 可选 | Atoms Cloud > Keys 或环境变量 | DeepSeek 模型名，默认 `deepseek-chat` |
 | `DATABASE_URL` | 必需 | 平台注入 | 后端数据库连接；缺少时后端启动报错 |
 | `APP_AI_BASE_URL` / `APP_AI_KEY` | 回退时需要 | 平台注入 | Atoms AI 网关，仅在未配置 `DEEPSEEK_API_KEY` 时使用 |
-| `MASK_KEY`、`PYTHON_BACKEND_URL`、OIDC 相关等 | 框架使用 | 平台注入 | 由 FuncSea 框架读取，业务代码不直接使用；具体值由平台管理 |
 
 注意事项：
 
@@ -263,8 +259,7 @@ uv pip install -r requirements.default
 ### 4. 后端服务与数据资源
 
 - **后端服务**：FastAPI 应用，入口为 `app/backend/main.py`（部署入口 `lambda_handler.py`），路由从 `routers/` 自动发现。本项目的业务接口是 `/api/v1/agent/*` 和两个实体的 CRUD 接口。
-- **数据库**：使用 FuncSea 平台提供的数据库，业务表有两张：`atoms_sessions`（会话）和 `atoms_docs`（生成应用的数据与检查数据）。两张表已通过平台创建，迁移文件在 `app/backend/alembic/versions/`，不需要手动建表。
-- **对象存储**：本项目**没有使用**对象存储，不需要准备存储桶。
+- **数据库**：使用 PostgreSQL，业务表有两张：`atoms_sessions`（会话）和 `atoms_docs`（生成应用的数据与检查数据）。两张表已通过平台创建，迁移文件在 `app/backend/alembic/versions/`，本地部署需要手动建表`alembic upgrade head`。
 - **鉴权**：业务接口没有接入登录鉴权（见「已知问题与限制」）。
 
 ### 5. 发布前检查清单
@@ -273,12 +268,8 @@ uv pip install -r requirements.default
 - [ ] `python -m py_compile services/agent.py routers/agent.py` 通过
 - [ ] `requirements.txt` 与 `requirements.default` 的依赖一致
 - [ ] 源码中没有硬编码的密钥（可用 `rg "sk-[0-9a-f]{8,}" app` 检查，结果应为空）
-- [ ] Atoms Cloud > Keys 中，生产环境已配置 `DEEPSEEK_API_KEY`
-- [ ] Cloud & AI 钱包有余额；DeepSeek 账户有余额
 - [ ] 没有修改 `app/backend/core/**`、`main.py`、`lambda_handler.py`、生成的 models 和 migrations，以及 `app/.mgx/config.yaml`
 - [ ] 发布后打开线上地址，用「做一个任务清单，可以添加、完成、删除」走一遍五个阶段，确认能进入预览
-
-如果按清单检查后发布仍然失败，请记录发布界面的具体报错，便于继续定位。
 
 ---
 
@@ -289,4 +280,3 @@ uv pip install -r requirements.default
 - **无鉴权**：会话与数据不区分用户，任何能访问工作台的人都能看到全部会话。
 - **只支持单个数据对象的单页 CRUD**：不支持多页面、登录、上传、支付、字段类型变更、数据迁移，也不支持版本树和任意版本回滚（只能回到修改前）。
 - **生成质量取决于模型**：同一需求两次生成的结果可能不同；系统只保证流程完整执行（检查一定运行、失败一定触发修复并给出原因）。
-- **验证情况**：增量修改的判定与单文件生成已通过 DeepSeek 实测，导出包已在本地用 Node.js 实测增删改查和重启后数据仍在；但增量修改的完整浏览器流程（含失败回滚），以及标签页切换、消息排序的浏览器回归测试尚未完整执行。
