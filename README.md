@@ -267,14 +267,7 @@ uv pip install -r requirements.default
 - **对象存储**：本项目**没有使用**对象存储，不需要准备存储桶。
 - **鉴权**：业务接口没有接入登录鉴权（见「已知问题与限制」）。
 
-### 5. Cloud & AI 钱包余额
-
-- 项目发布和 Atoms AI 调用都依赖 Cloud & AI 钱包余额；AI 或 Cloud 任一项余额用完，对应功能都会受影响。
-- 配置了 `DEEPSEEK_API_KEY` 后，大模型调用改走 DeepSeek，费用由 DeepSeek 账户承担，需要保证 DeepSeek 账户也有余额。
-- 充值入口：https://atoms.dev/dashboard?settings=cloudAiBalance（说明见 https://help.atoms.dev/en/articles/12129567-ai-and-cloud-wallet；免费用户需要先升级到 Pro 或 Max 才能充值）。
-- 此前多次发布失败，因为看不到平台发布日志，原因**尚未确认**；余额不足是最可能的原因之一。
-
-### 6. 发布前检查清单
+### 5. 发布前检查清单
 
 - [ ] `pnpm exec tsc -p tsconfig.app.json --noEmit`、`pnpm run lint`、`pnpm run build` 全部通过
 - [ ] `python -m py_compile services/agent.py routers/agent.py` 通过
